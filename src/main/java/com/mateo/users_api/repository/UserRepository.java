@@ -68,4 +68,8 @@ public class UserRepository {
                 .findFirst();
     }
 
+    public boolean deleteById(UUID id) {
+        return users.removeIf(user -> user.getId().equals(id));
+    }
+
 }

@@ -14,6 +14,9 @@ import com.mateo.users_api.dto.UpdateUserRequest;
 import com.mateo.users_api.model.User;
 import com.mateo.users_api.repository.UserRepository;
 
+import com.mateo.users_api.exception.BadRequestException;
+import com.mateo.users_api.exception.UserNotFoundException;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -61,7 +64,7 @@ public class UserService {
                     .sorted((a, b) -> a.getCreatedAt().compareToIgnoreCase(b.getCreatedAt()))
                     .toList();
 
-            default -> users;
+            default -> throw new BadRequestException("Invalid sort field");
         };
     }
 
@@ -70,7 +73,7 @@ public class UserService {
         String[] parts = normalizedFilter.split("\\+", 3);
 
         if (parts.length != 3) {
-            return users;
+            throw new BadRequestException("Invalid filter format");
         }
 
         String field = parts[0];
@@ -90,7 +93,7 @@ public class UserService {
             case "phone" -> user.getPhone();
             case "tax_id" -> user.getTaxId();
             case "created_at" -> user.getCreatedAt();
-            default -> null;
+            default -> throw new BadRequestException("Invalid filter field");
         };
 
         if (fieldValue == null) {
@@ -102,7 +105,7 @@ public class UserService {
             case "eq" -> fieldValue.equalsIgnoreCase(value);
             case "sw" -> fieldValue.toLowerCase().startsWith(value.toLowerCase());
             case "ew" -> fieldValue.toLowerCase().endsWith(value.toLowerCase());
-            default -> false;
+            default -> throw new BadRequestException("Invalid filter operator");
         };
     }
 
@@ -125,7 +128,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException();
         }
 
         User user = optionalUser.get();
@@ -144,5 +147,13 @@ public class UserService {
             user.setAddresses(request.getAddresses());
 
         return user;
+    }
+
+    public void deleteUser(UUID id) {
+        boolean deleted = userRepository.deleteById(id);
+
+        if (!deleted) {
+            throw new UserNotFoundException();
+        }
     }
 }
