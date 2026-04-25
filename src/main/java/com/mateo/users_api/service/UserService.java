@@ -10,19 +10,29 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.mateo.users_api.dto.CreateUserRequest;
+import com.mateo.users_api.dto.LoginRequest;
 import com.mateo.users_api.dto.UpdateUserRequest;
 import com.mateo.users_api.model.User;
 import com.mateo.users_api.repository.UserRepository;
 
 import com.mateo.users_api.exception.BadRequestException;
+import com.mateo.users_api.exception.UnauthorizedException;
 import com.mateo.users_api.exception.UserNotFoundException;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final ValidationService validationService;
+    private final EncryptionService encryptionService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            ValidationService validationService,
+            EncryptionService encryptionService) {
+
         this.userRepository = userRepository;
+        this.validationService = validationService;
+        this.encryptionService = new EncryptionService();
     }
 
     public List<User> getUsers(String sortedBy, String filter) {
@@ -110,12 +120,16 @@ public class UserService {
     }
 
     public User createUser(CreateUserRequest request) {
+        validationService.validateTaxId(request.getTaxId());
+        validationService.validatePhone(request.getPhone());
+        validationService.validateUniqueTaxId(request.getTaxId());
+
         User user = new User(
                 UUID.randomUUID(),
                 request.getEmail(),
                 request.getName(),
                 request.getPhone(),
-                request.getPassword(),
+                encryptionService.encrypt(request.getPassword()),
                 request.getTaxId(),
                 ZonedDateTime.now(ZoneId.of("Indian/Antananarivo"))
                         .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")),
@@ -137,12 +151,16 @@ public class UserService {
             user.setEmail(request.getEmail());
         if (request.getName() != null)
             user.setName(request.getName());
-        if (request.getPhone() != null)
+        if (request.getPhone() != null) {
+            validationService.validatePhone(request.getPhone());
             user.setPhone(request.getPhone());
+        }
         if (request.getPassword() != null)
-            user.setPassword(request.getPassword());
-        if (request.getTaxId() != null)
+            user.setPassword(encryptionService.encrypt(request.getPassword()));
+        if (request.getTaxId() != null) {
+            validationService.validateTaxId(request.getTaxId());
             user.setTaxId(request.getTaxId());
+        }
         if (request.getAddresses() != null)
             user.setAddresses(request.getAddresses());
 
@@ -155,5 +173,23 @@ public class UserService {
         if (!deleted) {
             throw new UserNotFoundException();
         }
+    }
+
+    public User login(LoginRequest request) {
+        Optional<User> optionalUser = userRepository.findByTaxId(request.getTaxId());
+
+        if (optionalUser.isEmpty()) {
+            throw new UnauthorizedException();
+        }
+
+        User user = optionalUser.get();
+
+        String decryptedPassword = encryptionService.decrypt(user.getPassword());
+
+        if (!decryptedPassword.equals(request.getPassword())) {
+            throw new UnauthorizedException();
+        }
+
+        return user;
     }
 }

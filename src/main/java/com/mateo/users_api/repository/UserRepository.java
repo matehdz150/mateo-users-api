@@ -9,19 +9,22 @@ import org.springframework.stereotype.Repository;
 
 import com.mateo.users_api.model.Address;
 import com.mateo.users_api.model.User;
+import com.mateo.users_api.service.EncryptionService;
 
 @Repository
 public class UserRepository {
     private final List<User> users = new ArrayList<>();
+    private final EncryptionService encryptionService;
 
-    public UserRepository() {
+    public UserRepository(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
 
         users.add(new User(
                 UUID.randomUUID(),
                 "ana@mail.com",
                 "Ana",
                 "5551111111",
-                "7c4a8d09ca3762af61e59520943dc26494f8941b",
+                encryptionService.encrypt("123456"),
                 "AARR990101XXX",
                 "01-01-2026 00:00",
                 List.of(
@@ -33,7 +36,7 @@ public class UserRepository {
                 "bruno@test.com",
                 "Bruno",
                 "4442222222",
-                "7c4a8d09ca3762af61e59520943dc26494f8941b",
+                encryptionService.encrypt("123456"),
                 "BRRR990101XXX",
                 "01-01-2026 00:00",
                 List.of(
@@ -45,7 +48,7 @@ public class UserRepository {
                 "carla@mail.com",
                 "Carla",
                 "5553333333",
-                "7c4a8d09ca3762af61e59520943dc26494f8941b",
+                encryptionService.encrypt("123456"),
                 "CARR990101XXX",
                 "01-01-2026 00:00",
                 List.of(
@@ -70,6 +73,12 @@ public class UserRepository {
 
     public boolean deleteById(UUID id) {
         return users.removeIf(user -> user.getId().equals(id));
+    }
+
+    public Optional<User> findByTaxId(String taxId) {
+        return users.stream()
+                .filter(user -> user.getTaxId().equalsIgnoreCase(taxId))
+                .findFirst();
     }
 
 }

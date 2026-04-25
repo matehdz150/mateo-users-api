@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mateo.users_api.dto.CreateUserRequest;
+import com.mateo.users_api.dto.LoginRequest;
 import com.mateo.users_api.dto.UpdateUserRequest;
 import com.mateo.users_api.model.User;
 import com.mateo.users_api.service.UserService;
@@ -47,5 +48,10 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
+    }
+
+    @PostMapping("/login")
+    public User login(@RequestBody LoginRequest request) {
+        return userService.login(request);
     }
 }

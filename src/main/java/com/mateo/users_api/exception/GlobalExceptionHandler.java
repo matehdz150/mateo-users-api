@@ -17,8 +17,7 @@ public class GlobalExceptionHandler {
                 "timestamp", ZonedDateTime.now().toString(),
                 "status", HttpStatus.NOT_FOUND.value(),
                 "error", "Not Found",
-                "message", ex.getMessage()
-        ));
+                "message", ex.getMessage()));
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -27,7 +26,15 @@ public class GlobalExceptionHandler {
                 "timestamp", ZonedDateTime.now().toString(),
                 "status", HttpStatus.BAD_REQUEST.value(),
                 "error", "Bad Request",
-                "message", ex.getMessage()
-        ));
+                "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "timestamp", ZonedDateTime.now().toString(),
+                "status", HttpStatus.UNAUTHORIZED.value(),
+                "error", "Unauthorized",
+                "message", ex.getMessage()));
     }
 }
