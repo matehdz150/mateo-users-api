@@ -18,6 +18,10 @@ import com.mateo.users_api.dto.UpdateUserRequest;
 import com.mateo.users_api.model.User;
 import com.mateo.users_api.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Users", description = "Users management API")
 @RestController
 public class UserController {
     private final UserService userService;
@@ -26,6 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Get all users", description = "Returns all users with optional sorting and filtering")
     @GetMapping("/users")
     public List<User> getUsers(
             @RequestParam(required = false) String sortedBy,
@@ -33,11 +38,13 @@ public class UserController {
         return userService.getUsers(sortedBy, filter);
     }
 
+    @Operation(summary = "Create user", description = "Creates a new user")
     @PostMapping("/users")
     public User createUser(@RequestBody CreateUserRequest request) {
         return userService.createUser(request);
     }
 
+    @Operation(summary = "Update user", description = "Updates an existing user by id")
     @PatchMapping("/users/{id}")
     public User updateUser(
             @PathVariable UUID id,
@@ -45,11 +52,13 @@ public class UserController {
         return userService.updateUser(id, request);
     }
 
+    @Operation(summary = "Delete user", description = "Deletes a user by id")
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
     }
 
+    @Operation(summary = "Login user", description = "Authenticate user with tax_id and password")
     @PostMapping("/login")
     public User login(@RequestBody LoginRequest request) {
         return userService.login(request);
