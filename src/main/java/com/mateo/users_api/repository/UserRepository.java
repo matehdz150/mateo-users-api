@@ -17,9 +17,9 @@ public class UserRepository {
 
         users.add(new User(
                 UUID.randomUUID(),
-                "user1@mail.com",
-                "user1",
-                "+1 55 555 555 55",
+                "ana@mail.com",
+                "Ana",
+                "5551111111",
                 "7c4a8d09ca3762af61e59520943dc26494f8941b",
                 "AARR990101XXX",
                 "01-01-2026 00:00",
@@ -29,33 +29,29 @@ public class UserRepository {
 
         users.add(new User(
                 UUID.randomUUID(),
-                "user2@mail.com",
-                "user2",
-                "+1 55 555 555 56",
+                "bruno@test.com",
+                "Bruno",
+                "4442222222",
                 "7c4a8d09ca3762af61e59520943dc26494f8941b",
-                "AARR990101XX1",
+                "BRRR990101XXX",
                 "01-01-2026 00:00",
                 List.of(
                         new Address(1L, "workaddress", "street No. 3", "US"),
-                        new Address(2L, "homeaddress", "street No. 4", "CA")
-                )
-        ));
+                        new Address(2L, "homeaddress", "street No. 4", "CA"))));
 
         users.add(new User(
                 UUID.randomUUID(),
-                "user3@mail.com",
-                "user3",
-                "+1 55 555 555 57",
+                "carla@mail.com",
+                "Carla",
+                "5553333333",
                 "7c4a8d09ca3762af61e59520943dc26494f8941b",
-                "AARR990101XX2",
+                "CARR990101XXX",
                 "01-01-2026 00:00",
                 List.of(
-
                         new Address(1L, "workaddress", "street No. 5", "MX"),
-                        new Address(2L, "homeaddress", "street No. 6", "ES")
-                )
-        ));
+                        new Address(2L, "homeaddress", "street No. 6", "ES"))));
     }
+
     public List<User> findAll() {
         return users;
     }
