@@ -41,4 +41,8 @@ public class EncryptionService {
             throw new RuntimeException("Error decrypting value");
         }
     }
+
+    public boolean matches(String rawValue, String encryptedValue) {
+        return encrypt(rawValue).equals(encryptedValue);
+    }
 }

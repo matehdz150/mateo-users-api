@@ -32,7 +32,7 @@ public class UserService {
 
         this.userRepository = userRepository;
         this.validationService = validationService;
-        this.encryptionService = new EncryptionService();
+        this.encryptionService = encryptionService;
     }
 
     public List<User> getUsers(String sortedBy, String filter) {
@@ -176,20 +176,18 @@ public class UserService {
     }
 
     public User login(LoginRequest request) {
-        Optional<User> optionalUser = userRepository.findByTaxId(request.getTaxId());
+        User user = userRepository.findByTaxId(request.getTaxId())
+                .orElseThrow(UnauthorizedException::new);
 
-        if (optionalUser.isEmpty()) {
+        boolean isValidPassword = encryptionService.matches(
+                request.getPassword(),
+                user.getPassword());
+
+        if (!isValidPassword) {
             throw new UnauthorizedException();
         }
 
-        User user = optionalUser.get();
-
-        String decryptedPassword = encryptionService.decrypt(user.getPassword());
-
-        if (!decryptedPassword.equals(request.getPassword())) {
-            throw new UnauthorizedException();
-        }
-
+        user.setPassword(null);
         return user;
     }
 }
