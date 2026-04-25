@@ -2,6 +2,7 @@ package com.mateo.users_api.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
@@ -54,6 +55,17 @@ public class UserRepository {
 
     public List<User> findAll() {
         return users;
+    }
+
+    public User save(User user) {
+        users.add(user);
+        return user;
+    }
+
+    public Optional<User> findById(UUID id) {
+        return users.stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst();
     }
 
 }

@@ -1,9 +1,16 @@
 package com.mateo.users_api.service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.mateo.users_api.dto.CreateUserRequest;
+import com.mateo.users_api.dto.UpdateUserRequest;
 import com.mateo.users_api.model.User;
 import com.mateo.users_api.repository.UserRepository;
 
@@ -97,5 +104,45 @@ public class UserService {
             case "ew" -> fieldValue.toLowerCase().endsWith(value.toLowerCase());
             default -> false;
         };
+    }
+
+    public User createUser(CreateUserRequest request) {
+        User user = new User(
+                UUID.randomUUID(),
+                request.getEmail(),
+                request.getName(),
+                request.getPhone(),
+                request.getPassword(),
+                request.getTaxId(),
+                ZonedDateTime.now(ZoneId.of("Indian/Antananarivo"))
+                        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")),
+                request.getAddresses());
+
+        return userRepository.save(user);
+    }
+
+    public User updateUser(UUID id, UpdateUserRequest request) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = optionalUser.get();
+
+        if (request.getEmail() != null)
+            user.setEmail(request.getEmail());
+        if (request.getName() != null)
+            user.setName(request.getName());
+        if (request.getPhone() != null)
+            user.setPhone(request.getPhone());
+        if (request.getPassword() != null)
+            user.setPassword(request.getPassword());
+        if (request.getTaxId() != null)
+            user.setTaxId(request.getTaxId());
+        if (request.getAddresses() != null)
+            user.setAddresses(request.getAddresses());
+
+        return user;
     }
 }
